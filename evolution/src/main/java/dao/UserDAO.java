@@ -37,7 +37,7 @@ public class UserDAO {
 					User user = null;
 					while (rs.next()) {
 						user = new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
-								rs.getString("created_at"));
+								rs.getString("created_at"), rs.getInt("points"));
 					}
 					return user;
 				} catch (Exception e) {
@@ -75,7 +75,7 @@ public class UserDAO {
 				boolean isCorrect = passwordAuthentication.authenticate(password.toCharArray(), encrypted_password);
 				if (isCorrect) {
 					return new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
-							rs.getString("created_at"));
+							rs.getString("created_at"), rs.getInt("points"));
 				}
 			}
 
@@ -89,6 +89,31 @@ public class UserDAO {
 
 	private PreparedStatement createPreparedStatementGetUser(Connection con, String email) throws SQLException {
 		PreparedStatement ps = con.prepareStatement("SELECT * from users WHERE email = ?");
+		ps.setString(1, email);
+		return ps;
+	}
+
+	/**
+	 * Get user by uuid
+	 */
+	public User getUserByUUID(Connection connection, String uuid) throws Exception {
+		try (PreparedStatement ps = createPreparedStatementGetUserUUID(connection, uuid);
+				ResultSet rs = ps.executeQuery();) {
+			while (rs.next()) {
+				return new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
+						rs.getString("created_at"), rs.getInt("points"));
+			}
+
+		} catch (
+
+		Exception e) {
+			throw e;
+		}
+		return null;
+	}
+
+	private PreparedStatement createPreparedStatementGetUserUUID(Connection con, String email) throws SQLException {
+		PreparedStatement ps = con.prepareStatement("SELECT * from users WHERE unique_id = ?");
 		ps.setString(1, email);
 		return ps;
 	}

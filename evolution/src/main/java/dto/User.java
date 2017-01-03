@@ -9,13 +9,23 @@ public class User {
 	private String name;
 	private String email;
 	private String created_at;
+	private int points;
 
-	public User(String id, String name, String email, String created_at) {
+	public int getPoints() {
+		return points;
+	}
+
+	public void setPoints(int points) {
+		this.points = points;
+	}
+
+	public User(String id, String name, String email, String created_at, int points) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.created_at = created_at;
+		this.points = points;
 	}
 
 	public String getId() {
