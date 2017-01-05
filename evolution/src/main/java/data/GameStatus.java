@@ -1,7 +1,7 @@
 package data;
 
 public enum GameStatus {
-	WAITING("WAITING");
+	WAITING("WAITING"), ENDED("ENDED");
 
 	private final String value;
 

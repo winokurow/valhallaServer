@@ -19,15 +19,6 @@ public class User {
 		this.points = points;
 	}
 
-	public User(String id, String name, String email, String created_at, int points) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.created_at = created_at;
-		this.points = points;
-	}
-
 	public String getId() {
 		return id;
 	}
@@ -62,6 +53,15 @@ public class User {
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public User(String id, String name, String email, String created_at, int points) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.created_at = created_at;
+		this.points = points;
 	}
 
 }

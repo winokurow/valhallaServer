@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import data.GameStatus;
 import dto.Game;
 import dto.User;
 
@@ -57,6 +58,32 @@ public class GameDAO {
 		return ps;
 	}
 
+	/**
+	 * Update game status
+	 */
+	public boolean setGameStatus(Connection connection, String uiid, String status) throws Exception {
+
+		try (PreparedStatement ps = createPreparedStatementSetGameStatus(connection, uiid, status);) {
+
+			int result = ps.executeUpdate();
+			// check for successful store
+			if (result > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+		return false;
+	}
+
+	private PreparedStatement createPreparedStatementSetGameStatus(Connection con, String uiid, String status)
+			throws SQLException {
+		PreparedStatement ps = con.prepareStatement("UPDATE games SET status=?, updated_at=NOW() WHERE unique_id = ?");
+		ps.setString(2, uiid);
+		ps.setString(1, status);
+		return ps;
+	}
+
 	private PreparedStatement createPreparedStatementInsertGame(Connection con, String unique_id, String user1id,
 			String user2id, String status) throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
@@ -79,10 +106,17 @@ public class GameDAO {
 			while (rs.next()) {
 				UserDAO userdao = new UserDAO();
 				User user1 = userdao.getUserByUUID(connection, rs.getString("gamer1id"));
-				User user2 = userdao.getUserByUUID(connection, rs.getString("gamer2id"));
-				Game game = new Game(rs.getString("unique_id"), user1.getId(), user1.getName(), user1.getPoints(),
-						user2.getId(), user2.getName(), user2.getPoints(), rs.getString("status"),
-						rs.getString("created_at"));
+				String id = "";
+				String name = "";
+				int points = 0;
+				if (!(rs.getString("gamer2id").isEmpty())) {
+					User user2 = userdao.getUserByUUID(connection, rs.getString("gamer2id"));
+					id = user2.getId();
+					name = user2.getName();
+					points = user2.getPoints();
+				}
+				Game game = new Game(rs.getString("unique_id"), user1.getId(), user1.getName(), user1.getPoints(), id,
+						name, points, rs.getString("status"), rs.getString("created_at"));
 				returnValue.add(game);
 			}
 		} catch (
@@ -120,14 +154,14 @@ public class GameDAO {
 	}
 
 	private PreparedStatement createPreparedStatementIsGameExisted(Connection con, String user) throws SQLException {
-		PreparedStatement ps = con
-				.prepareStatement("SELECT unique_id from games WHERE gamer1id = ? AND NOT status='ENDED'");
+		PreparedStatement ps = con.prepareStatement(
+				"SELECT unique_id from games WHERE gamer1id = ? AND NOT status='" + GameStatus.ENDED.asString() + "'");
 		ps.setString(1, user);
 		return ps;
 	}
 
 	/***
-	 * Copy of uniqid in php http://php.net/manual/fr/function.uniqid.php
+	 * Copy of uniquwid in php http://php.net/manual/fr/function.uniqid.php
 	 * 
 	 * @param prefix
 	 * @param more_entropy

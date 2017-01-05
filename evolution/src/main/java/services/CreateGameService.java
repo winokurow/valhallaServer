@@ -7,6 +7,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -49,10 +50,43 @@ public class CreateGameService {
 					GameResponse gameResponse = new GameResponse(false, "", game);
 					Response response = Response.ok().entity(gameResponse).build();
 					return response;
+
 				} else {
-					GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in registration!", null);
+					GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!",
+							null);
 					return Response.ok().entity(gameResponse).build();
 				}
+			}
+		}
+
+		catch (Exception e) {
+			log.error(e); // Console
+		}
+		return null;
+	}
+
+	@PUT
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response setGameStatus(@FormParam("uiid") String user, @FormParam("status") String status) {
+		System.out.println(user);
+		System.out.println(status);
+		if (user.isEmpty() || status.isEmpty()) {
+			GameResponse userResponse = new GameResponse(true, "Required parameters (user) is missing!", null);
+			return Response.ok().entity(userResponse).build();
+		}
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			GameDAO project = new GameDAO();
+			boolean result = project.setGameStatus(connection, user, status);
+			if (!result) {
+				GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!", null);
+				return Response.ok().entity(gameResponse).build();
+			} else {
+				GameResponse gameResponse = new GameResponse(false, "", null);
+				Response response = Response.ok().entity(gameResponse).build();
+				return response;
 			}
 		}
 
