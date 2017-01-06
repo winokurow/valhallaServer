@@ -30,21 +30,7 @@ public class GameDAO {
 			int result = ps.executeUpdate();
 			// check for successful store
 			if (result > 0) {
-				try (PreparedStatement ps1 = createPreparedStatementGetGame(connection, uuid);
-						ResultSet rs = ps1.executeQuery();) {
-					Game game = null;
-					while (rs.next()) {
-						UserDAO userdao = new UserDAO();
-						User user = userdao.getUserByUUID(connection, rs.getString("gamer1id"));
-
-						game = new Game(rs.getString("unique_id"), user.getId(), user.getName(), user.getPoints(), "",
-								"", 0, rs.getString("status"), rs.getString("created_at"));
-					}
-					return game;
-				} catch (Exception e) {
-					log.error(e);
-					throw e;
-				}
+				return getGame(connection, uuid);
 			}
 		} catch (Exception e) {
 			throw e;
@@ -84,6 +70,32 @@ public class GameDAO {
 		return ps;
 	}
 
+	/**
+	 * Update game field
+	 */
+	public boolean setGameField(Connection connection, String uiid, String field) throws Exception {
+
+		try (PreparedStatement ps = createPreparedStatementSetGameField(connection, uiid, field);) {
+
+			int result = ps.executeUpdate();
+			// check for successful store
+			if (result > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+		return false;
+	}
+
+	private PreparedStatement createPreparedStatementSetGameField(Connection con, String uiid, String fieldid)
+			throws SQLException {
+		PreparedStatement ps = con.prepareStatement("UPDATE games SET field=?, updated_at=NOW() WHERE unique_id = ?");
+		ps.setString(2, uiid);
+		ps.setString(1, fieldid);
+		return ps;
+	}
+
 	private PreparedStatement createPreparedStatementInsertGame(Connection con, String unique_id, String user1id,
 			String user2id, String status) throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
@@ -116,7 +128,7 @@ public class GameDAO {
 					points = user2.getPoints();
 				}
 				Game game = new Game(rs.getString("unique_id"), user1.getId(), user1.getName(), user1.getPoints(), id,
-						name, points, rs.getString("status"), rs.getString("created_at"));
+						name, points, rs.getString("status"), rs.getString("created_at"), rs.getString("field"));
 				returnValue.add(game);
 			}
 		} catch (
@@ -125,6 +137,27 @@ public class GameDAO {
 			throw e;
 		}
 		return returnValue;
+	}
+
+	/**
+	 * Get game
+	 */
+	public Game getGame(Connection connection, String uiid) throws Exception {
+		try (PreparedStatement ps1 = createPreparedStatementGetGame(connection, uiid);
+				ResultSet rs = ps1.executeQuery();) {
+			Game game = null;
+			while (rs.next()) {
+				UserDAO userdao = new UserDAO();
+				User user = userdao.getUserByUUID(connection, rs.getString("gamer1id"));
+
+				game = new Game(rs.getString("unique_id"), user.getId(), user.getName(), user.getPoints(), "", "", 0,
+						rs.getString("status"), rs.getString("created_at"), rs.getString("field"));
+			}
+			return game;
+		} catch (Exception e) {
+			log.error(e);
+			throw e;
+		}
 	}
 
 	private PreparedStatement createPreparedStatementGetGames(Connection con, String status) throws SQLException {

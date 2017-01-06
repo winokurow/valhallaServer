@@ -14,6 +14,7 @@ public class Game {
 	private int gamer2_points;
 	private String status;
 	private String created_at;
+	private String field;
 
 	public String getId() {
 		return id;
@@ -91,8 +92,16 @@ public class Game {
 		this.gamer2_points = gamer2_points;
 	}
 
+	public String getField() {
+		return field;
+	}
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
 	public Game(String id, String gamer1_id, String gamer1_name, int gamer1_points, String gamer2_id,
-			String gamer2_name, int gamer2_points, String status, String created_at) {
+			String gamer2_name, int gamer2_points, String status, String created_at, String field) {
 		super();
 		this.id = id;
 		this.gamer1_id = gamer1_id;
@@ -103,6 +112,7 @@ public class Game {
 		this.gamer2_points = gamer2_points;
 		this.status = status;
 		this.created_at = created_at;
+		this.field = field;
 	}
 
 }
