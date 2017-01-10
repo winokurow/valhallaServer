@@ -30,16 +30,16 @@ public class FieldsService {
 	@PUT
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response setGameStatus(@FormParam("fieldid") String fieldid) {
-		if (fieldid.isEmpty()) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (fieldid) is missing!", null);
+	public Response setGameStatus(@FormParam("gameid") String gameid) {
+		if (gameid.isEmpty()) {
+			GameResponse userResponse = new GameResponse(true, "Required parameters (gameid) is missing!", null);
 			return Response.ok().entity(userResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
-			boolean result = project.setGameField(connection, fieldid, "1");
+			boolean result = project.setGameField(connection, gameid, "1");
 			if (!result) {
 				GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!", null);
 				return Response.ok().entity(gameResponse).build();
