@@ -18,8 +18,7 @@ import org.json.JSONException;
 import dao.Database;
 import dao.FieldsDAO;
 import dao.GameDAO;
-import dto.GameResponse;
-import dto.StringResponse;
+import dto.responses.CustomResponse;
 
 @Path("/fieldservice")
 public class FieldsService {
@@ -32,8 +31,10 @@ public class FieldsService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response setGameStatus(@FormParam("gameid") String gameid) {
 		if (gameid.isEmpty()) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (gameid) is missing!", null);
-			return Response.ok().entity(userResponse).build();
+			CustomResponse<String> fieldResponse = new CustomResponse<>(true,
+					"Required parameters (gameid) is missing!", null);
+			return Response.ok().entity(fieldResponse).build();
+
 		}
 		try {
 			Database database = new Database();
@@ -41,11 +42,12 @@ public class FieldsService {
 			GameDAO project = new GameDAO();
 			boolean result = project.setGameField(connection, gameid, "1");
 			if (!result) {
-				GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!", null);
-				return Response.ok().entity(gameResponse).build();
+				CustomResponse<String> fieldResponse = new CustomResponse<>(true,
+						"Unknown error occurred in game creation!", null);
+				return Response.ok().entity(fieldResponse).build();
 			} else {
-				StringResponse gameResponse = new StringResponse(false, "", "1");
-				Response response = Response.ok().entity(gameResponse).build();
+				CustomResponse<String> fieldResponse = new CustomResponse<>(false, "", "1");
+				Response response = Response.ok().entity(fieldResponse).build();
 				return response;
 			}
 		}
@@ -61,16 +63,17 @@ public class FieldsService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getGame(@PathParam("id") String id) throws JSONException {
 		if (id == null) {
-			StringResponse response = new StringResponse(true, "Required parameters (id) is missing!", null);
-			return Response.ok().entity(response).build();
+			CustomResponse<String> fieldResponse = new CustomResponse<>(true, "Required parameters (id) is missing!",
+					null);
+			return Response.ok().entity(fieldResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			FieldsDAO project = new FieldsDAO();
 			String cells = project.getField(connection, id);
-			StringResponse res = new StringResponse(false, "", cells);
-			Response response = Response.ok().entity(res).build();
+			CustomResponse<String> fieldResponse = new CustomResponse<>(false, "", cells);
+			Response response = Response.ok().entity(fieldResponse).build();
 			return response;
 
 		}

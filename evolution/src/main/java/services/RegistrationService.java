@@ -4,7 +4,6 @@ import java.sql.Connection;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,13 +11,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import dao.Database;
 import dao.UserDAO;
+import dto.Gladiator;
 import dto.User;
-import dto.UserResponse;
+import dto.responses.CustomResponse;
 
 @Path("/registrationservice")
 public class RegistrationService {
@@ -32,7 +30,7 @@ public class RegistrationService {
 	public Response postUser(@FormParam("name") String name, @FormParam("email") String email,
 			@FormParam("password") String password) {
 		if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-			UserResponse userResponse = new UserResponse(true,
+			CustomResponse<User> userResponse = new CustomResponse<>(true,
 					"Required parameters (name, email or password) is missing!", null);
 			return Response.ok().entity(userResponse).build();
 		}
@@ -41,16 +39,27 @@ public class RegistrationService {
 			Connection connection = database.Get_Connection();
 			UserDAO project = new UserDAO();
 			if (project.isUserExisted(connection, email)) {
-				UserResponse userResponse = new UserResponse(true, "User already existed with " + email, null);
+				CustomResponse<User> userResponse = new CustomResponse<>(true, "User already existed with " + email,
+						null);
 				return Response.ok().entity(userResponse).build();
 			} else {
-				User user = project.storeUser(connection, name, email, password);
+				User user = project.storeUser(connection, name, email, password, 1, 1);
 				if (user != null) {
-					UserResponse userResponse = new UserResponse(false, "", user);
-					Response response = Response.ok().entity(userResponse).build();
-					return response;
+					GladiatorService gladiatorService = new GladiatorService();
+					Gladiator gladiator = gladiatorService.createGladiator(Integer.parseInt(user.getId()));
+					if (gladiator != null) {
+						CustomResponse<User> userResponse = new CustomResponse<>(false, "", user);
+						Response response = Response.ok().entity(userResponse).build();
+						return response;
+					} else {
+						CustomResponse<User> userResponse = new CustomResponse<>(true,
+								"Unknown error occurred in registration!", null);
+						return Response.ok().entity(userResponse).build();
+					}
+
 				} else {
-					UserResponse userResponse = new UserResponse(true, "Unknown error occurred in registration!", null);
+					CustomResponse<User> userResponse = new CustomResponse<>(true,
+							"Unknown error occurred in registration!", null);
 					return Response.ok().entity(userResponse).build();
 				}
 			}
@@ -61,20 +70,5 @@ public class RegistrationService {
 		}
 		return null;
 
-	}
-
-	@GET
-	@Produces("text/html")
-	public Response defaultReverser() throws JSONException {
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("ANKARA");
-
-		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("original", sb.toString());
-		jsonObject.put("reversed", sb.reverse().toString());
-
-		String result = "" + jsonObject;
-		return Response.status(200).entity(result).build();
 	}
 }

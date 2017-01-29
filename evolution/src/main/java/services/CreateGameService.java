@@ -21,8 +21,7 @@ import dao.Database;
 import dao.GameDAO;
 import data.GameStatus;
 import dto.Game;
-import dto.GameResponse;
-import dto.GamesResponse;
+import dto.responses.CustomResponse;
 
 @Path("/creategameservice")
 public class CreateGameService {
@@ -35,33 +34,31 @@ public class CreateGameService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response postGame(@FormParam("user") String user) {
 		if (user.isEmpty()) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (user) is missing!", null);
-			return Response.ok().entity(userResponse).build();
+			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters (user) is missing!",
+					null);
+			return Response.ok().entity(gameResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
-			if (project.isGameExisted(connection, user)) {
-				GameResponse userResponse = new GameResponse(true, "Game already existed", null);
-				return Response.ok().entity(userResponse).build();
+			Game game = project.getGameByUser(connection, user);
+			if (game != null) {
+				CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Game already existed", null);
+				return Response.ok().entity(gameResponse).build();
 			} else {
-				Game game = project.storeGame(connection, user, "", GameStatus.WAITING.asString());
+				game = project.storeGame(connection, user, "", GameStatus.WAITING.asString());
 				if (game != null) {
-					GameResponse gameResponse = new GameResponse(false, "", game);
+					CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
 					Response response = Response.ok().entity(gameResponse).build();
 					return response;
 
-				} else {
-					GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!",
-							null);
-					return Response.ok().entity(gameResponse).build();
 				}
 			}
 		}
 
 		catch (Exception e) {
-			log.error(e); // Console
+			log.error(e.getMessage()); // Console
 		}
 		return null;
 	}
@@ -69,28 +66,33 @@ public class CreateGameService {
 	@PUT
 	@Consumes("application/x-www-form-urlencoded")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response setGameStatus(@FormParam("uiid") String user, @FormParam("status") String status) {
-		if (user.isEmpty() || status.isEmpty()) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (user) is missing!", null);
-			return Response.ok().entity(userResponse).build();
+	public Response changeGame(@FormParam("uiid") String id, @FormParam("status") String status,
+			@FormParam("userid") String userid) {
+		if (id.isEmpty() || status.isEmpty() || userid == null) {
+			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters are missing!", null);
+			return Response.ok().entity(gameResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
-			boolean result = project.setGameStatus(connection, user, status);
+			boolean result = project.setGameStatus(connection, id, status);
+			if (result) {
+				result = project.setGameUser2(connection, id, userid);
+			}
 			if (!result) {
-				GameResponse gameResponse = new GameResponse(true, "Unknown error occurred in game creation!", null);
+				CustomResponse<Game> gameResponse = new CustomResponse<>(true,
+						"Unknown error occurred in game creation!", null);
 				return Response.ok().entity(gameResponse).build();
 			} else {
-				GameResponse gameResponse = new GameResponse(false, "", null);
+				CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", null);
 				Response response = Response.ok().entity(gameResponse).build();
 				return response;
 			}
 		}
 
 		catch (Exception e) {
-			log.error(e); // Console
+			log.error(e.getMessage()); // Console
 		}
 		return null;
 	}
@@ -98,18 +100,20 @@ public class CreateGameService {
 	@Path("game/{uiid}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getGame(@PathParam("uiid") String uiid) throws JSONException {
-		if (uiid == null) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (uiid) is missing!", null);
-			return Response.ok().entity(userResponse).build();
+	public Response getGame(@PathParam("uiid") String id) throws JSONException {
+		if (id == null) {
+			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters (id) is missing!",
+					null);
+			return Response.ok().entity(gameResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
-			Game game = project.getGame(connection, uiid);
-			GameResponse gamesResponse = new GameResponse(false, "", game);
-			Response response = Response.ok().entity(gamesResponse).build();
+			Game game = project.getGame(connection, id);
+			log.info(game.getStatus());
+			CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
+			Response response = Response.ok().entity(gameResponse).build();
 			return response;
 
 		}
@@ -117,7 +121,7 @@ public class CreateGameService {
 		catch (
 
 		Exception e) {
-			log.error(e); // Console
+			log.error(e.getMessage()); // Console
 		}
 		return null;
 	}
@@ -127,16 +131,17 @@ public class CreateGameService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getGames(@PathParam("status") String status) throws JSONException {
 		if (status == null) {
-			GameResponse userResponse = new GameResponse(true, "Required parameters (status) is missing!", null);
-			return Response.ok().entity(userResponse).build();
+			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters (status) is missing!",
+					null);
+			return Response.ok().entity(gameResponse).build();
 		}
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
 			List<Game> games = project.getGames(connection, status);
-			GamesResponse gamesResponse = new GamesResponse(false, "", games);
-			Response response = Response.ok().entity(gamesResponse).build();
+			CustomResponse<List<Game>> gameResponse = new CustomResponse<>(false, "", games);
+			Response response = Response.ok().entity(gameResponse).build();
 			return response;
 
 		}
@@ -144,7 +149,32 @@ public class CreateGameService {
 		catch (
 
 		Exception e) {
-			log.error(e); // Console
+			log.error(e.getMessage()); // Console
+		}
+		return null;
+	}
+
+	@Path("userid/{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getGamesByUser(@PathParam("id") String id) throws JSONException {
+		if (id == null) {
+			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameter (id) is missing!", null);
+			return Response.ok().entity(gameResponse).build();
+		}
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			GameDAO project = new GameDAO();
+			Game game = project.getGameByUser(connection, id);
+			log.info(game.getId());
+			CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
+			Response response = Response.ok().entity(gameResponse).build();
+			return response;
+		}
+
+		catch (Exception e) {
+			log.error(e.getMessage()); // Console
 		}
 		return null;
 	}

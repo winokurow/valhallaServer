@@ -1,8 +1,6 @@
 package dao;
 
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,28 +20,20 @@ public class UserDAO {
 	/**
 	 * Storing new user returns user details
 	 */
-	public User storeUser(Connection connection, String name, String email, String password) throws Exception {
+	public User storeUser(Connection connection, String name, String email, String password, int points, int level)
+			throws Exception {
 		String uuid = uniqid("", true);
 		PasswordAuthentication passwordAuthentication = new PasswordAuthentication();
 		String hash = passwordAuthentication.hash(password.toCharArray());
 
-		try (PreparedStatement ps = createPreparedStatementInsertUser(connection, uuid, name, email, hash);) {
+		try (PreparedStatement ps = createPreparedStatementInsertUser(connection, uuid, name, email, hash, points,
+				level);) {
 
 			int result = ps.executeUpdate();
 			// check for successful store
 			if (result > 0) {
-				try (PreparedStatement ps1 = createPreparedStatementGetUser(connection, email);
-						ResultSet rs = ps1.executeQuery();) {
-					User user = null;
-					while (rs.next()) {
-						user = new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
-								rs.getString("created_at"), rs.getInt("points"));
-					}
-					return user;
-				} catch (Exception e) {
-					log.error(e);
-					throw e;
-				}
+				User user = getUserByUUID(connection, uuid);
+				return user;
 			}
 		} catch (Exception e) {
 			throw e;
@@ -52,13 +42,15 @@ public class UserDAO {
 	}
 
 	private PreparedStatement createPreparedStatementInsertUser(Connection con, String uuid, String name, String email,
-			String password) throws SQLException {
+			String password, int points, int level) throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO users(unique_id, name, email, encrypted_password, created_at) VALUES(?, ?, ?, ?, NOW())");
+				"INSERT INTO users(unique_id, name, email, encrypted_password, points, level, created_at) VALUES(?, ?, ?, ?, ?, ?, NOW())");
 		ps.setString(1, uuid);
 		ps.setString(2, name);
 		ps.setString(3, email);
 		ps.setString(4, password);
+		ps.setInt(5, points);
+		ps.setInt(6, level);
 		return ps;
 	}
 
@@ -74,14 +66,13 @@ public class UserDAO {
 
 				boolean isCorrect = passwordAuthentication.authenticate(password.toCharArray(), encrypted_password);
 				if (isCorrect) {
-					return new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
-							rs.getString("created_at"), rs.getInt("points"));
+					return new User(rs.getString("id"), rs.getString("unique_id"), rs.getString("name"),
+							rs.getString("email"), rs.getInt("points"), rs.getInt("level"), rs.getString("created_at"),
+							rs.getString("updated_at"));
 				}
 			}
 
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			throw e;
 		}
 		return null;
@@ -100,20 +91,19 @@ public class UserDAO {
 		try (PreparedStatement ps = createPreparedStatementGetUserUUID(connection, uuid);
 				ResultSet rs = ps.executeQuery();) {
 			while (rs.next()) {
-				return new User(rs.getString("unique_id"), rs.getString("name"), rs.getString("email"),
-						rs.getString("created_at"), rs.getInt("points"));
+				return new User(rs.getString("id"), rs.getString("unique_id"), rs.getString("name"),
+						rs.getString("email"), rs.getInt("points"), rs.getInt("level"), rs.getString("created_at"),
+						rs.getString("updated_at"));
 			}
 
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			throw e;
 		}
 		return null;
 	}
 
 	private PreparedStatement createPreparedStatementGetUserUUID(Connection con, String email) throws SQLException {
-		PreparedStatement ps = con.prepareStatement("SELECT * from users WHERE unique_id = ?");
+		PreparedStatement ps = con.prepareStatement("SELECT * from users WHERE id = ?");
 		ps.setString(1, email);
 		return ps;
 	}
@@ -151,7 +141,7 @@ public class UserDAO {
 	 * @param more_entropy
 	 * @return
 	 */
-	public String uniqid(String prefix, boolean more_entropy) {
+	private String uniqid(String prefix, boolean more_entropy) {
 		long time = System.currentTimeMillis();
 		// String uniqid = String.format("%fd%05f",
 		// Math.floor(time),(time-Math.floor(time))*1000000);
@@ -171,31 +161,4 @@ public class UserDAO {
 		return uniqid;
 	}
 
-	/**
-	 * Encrypting password
-	 * 
-	 * @param password
-	 *            returns salt and encrypted password
-	 */
-	public String hashSSHA(String password) {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("SHA-256");
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException();
-		}
-		md.update(password.getBytes());
-
-		byte byteData[] = md.digest();
-
-		// convert the byte to hex
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < byteData.length; i++) {
-			sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-		}
-
-		System.out.println("Hex format : " + sb.toString());
-
-		return sb.toString();
-	}
 }

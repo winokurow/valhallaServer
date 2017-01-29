@@ -6,10 +6,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class User {
 
 	private String id;
+	private String unique;
 	private String name;
 	private String email;
-	private String created_at;
 	private int points;
+	private int level;
+	private String created_at;
+	private String updated_at;
 
 	public int getPoints() {
 		return points;
@@ -55,13 +58,41 @@ public class User {
 		this.created_at = created_at;
 	}
 
-	public User(String id, String name, String email, String created_at, int points) {
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+
+	public String getUnique() {
+		return unique;
+	}
+
+	public void setUnique(String unique) {
+		this.unique = unique;
+	}
+
+	public User(String id, String unique, String name, String email, int points, int level, String created_at,
+			String updated_at) {
 		super();
 		this.id = id;
+		this.unique = unique;
 		this.name = name;
 		this.email = email;
-		this.created_at = created_at;
 		this.points = points;
+		this.level = level;
+		this.created_at = created_at;
+		this.updated_at = updated_at;
 	}
 
 }

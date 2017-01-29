@@ -1,20 +1,20 @@
-package dto;
+package dto.responses;
 
-public class StringResponse {
+public class CustomResponse<T> {
 
 	private boolean error;
 	private String error_msg;
-	private String text;
+	private T data;
 
-	public StringResponse() {
+	public CustomResponse() {
 		super();
 	}
 
-	public StringResponse(boolean error, String error_msg, String text) {
+	public CustomResponse(boolean error, String error_msg, T data) {
 		super();
 		this.error = error;
 		this.error_msg = error_msg;
-		this.text = text;
+		this.data = data;
 	}
 
 	public boolean isError() {
@@ -33,12 +33,12 @@ public class StringResponse {
 		this.error_msg = error_msg;
 	}
 
-	public String getText() {
-		return text;
+	public T getData() {
+		return data;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setData(T data) {
+		this.data = data;
 	}
 
 }
