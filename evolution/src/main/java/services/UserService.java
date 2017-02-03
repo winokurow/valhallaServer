@@ -6,6 +6,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -81,6 +82,37 @@ public class UserService {
 
 		catch (Exception e) {
 			log.error(e); // Console
+		}
+		return null;
+	}
+
+	@PUT
+	@Consumes("application/x-www-form-urlencoded")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response changeUser(@FormParam("uiid") String id, @FormParam("points") String points,
+			@FormParam("level") String level) {
+		if (id.isEmpty() || points.isEmpty() || level.isEmpty()) {
+			CustomResponse<User> userResponse = new CustomResponse<>(true, "Required parameters are missing!", null);
+			return Response.ok().entity(userResponse).build();
+		}
+		try {
+			Database database = new Database();
+			Connection connection = database.Get_Connection();
+			UserDAO project = new UserDAO();
+			boolean result = project.setPointsLevel(connection, id, points, level);
+			if (!result) {
+				CustomResponse<User> userResponse = new CustomResponse<>(true,
+						"Unknown error occurred in game creation!", null);
+				return Response.ok().entity(userResponse).build();
+			} else {
+				CustomResponse<User> userResponse = new CustomResponse<>(false, "", null);
+				Response response = Response.ok().entity(userResponse).build();
+				return response;
+			}
+		}
+
+		catch (Exception e) {
+			log.error(e.getMessage()); // Console
 		}
 		return null;
 	}

@@ -35,10 +35,9 @@ public class TurnService {
 			@FormParam("turn") Integer turnNumber, @FormParam("action") String action,
 			@FormParam("value1") String value1, @FormParam("value2") String value2,
 			@FormParam("value3") String value3) {
-		if (gameid == null || host.isEmpty() || turnNumber == null || action.isEmpty() || value1.isEmpty()
-				|| value2.isEmpty() || value3.isEmpty()) {
-			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters is missing!", null);
-			return Response.ok().entity(gameResponse).build();
+		if (gameid == null || host.isEmpty() || turnNumber == null || action.isEmpty() || value1.isEmpty()) {
+			CustomResponse<Turn> turnResponse = new CustomResponse<>(true, "Required parameters is missing!", null);
+			return Response.ok().entity(turnResponse).build();
 		}
 		Turn turn = new Turn(gameid, turnNumber, host, action, value1, value2, value3, "", "");
 		try {
@@ -47,9 +46,10 @@ public class TurnService {
 			TurnsDAO project = new TurnsDAO();
 
 			List<Turn> turns = project.storeTurn(connection, turn);
+			log.info(turns.size());
 			if (turns.size() == 1) {
-				CustomResponse<Turn> gameResponse = new CustomResponse<>(false, "", turns.get(0));
-				Response response = Response.ok().entity(gameResponse).build();
+				CustomResponse<Turn> TurnResponse = new CustomResponse<>(false, "", turns.get(0));
+				Response response = Response.ok().entity(TurnResponse).build();
 				return response;
 
 			} else {

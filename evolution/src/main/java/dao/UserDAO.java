@@ -134,6 +134,34 @@ public class UserDAO {
 		return ps;
 	}
 
+	/**
+	 * Update game status
+	 */
+	public boolean setPointsLevel(Connection connection, String uiid, String points, String level) throws Exception {
+
+		try (PreparedStatement ps = createPreparedStatementSetUserPoints(connection, uiid, points, level);) {
+
+			int result = ps.executeUpdate();
+			// check for successful store
+			if (result > 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+		return false;
+	}
+
+	private PreparedStatement createPreparedStatementSetUserPoints(Connection con, String uiid, String points,
+			String level) throws SQLException {
+		PreparedStatement ps = con
+				.prepareStatement("UPDATE users SET points=?, level=?, updated_at=NOW() WHERE id = ?");
+		ps.setString(3, uiid);
+		ps.setString(1, points);
+		ps.setString(2, level);
+		return ps;
+	}
+
 	/***
 	 * Copy of uniqid in php http://php.net/manual/fr/function.uniqid.php
 	 * 

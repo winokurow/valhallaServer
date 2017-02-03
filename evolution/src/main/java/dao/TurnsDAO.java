@@ -23,19 +23,23 @@ public class TurnsDAO {
 		try (PreparedStatement ps1 = createPreparedStatementGetTurns(connection, gameid, current);
 				ResultSet rs = ps1.executeQuery();) {
 			List<Turn> turns = new ArrayList<>();
+			log.info("th1");
 			while (rs.next()) {
+				String value2 = (rs.getString("value2") == null) ? "" : rs.getString("value2");
+				String value3 = (rs.getString("value3") == null) ? "" : rs.getString("value3");
+				String updated_at = (rs.getString("updated_at") == null) ? "" : rs.getString("updated_at");
 				Turn turn = new Turn(rs.getInt("gameid"), rs.getInt("turn"), rs.getString("host"),
-						rs.getString("action"), rs.getString("value1"), rs.getString("value2"), rs.getString("value3"),
-						rs.getString("created_at"), rs.getString("updated_at"));
+						rs.getString("action"), rs.getString("value1"), value2, value3, rs.getString("created_at"),
+						updated_at);
 
 				turns.add(turn);
 			}
+			return turns;
 
 		} catch (Exception e) {
 			log.error(e);
 			throw e;
 		}
-		return null;
 	}
 
 	private PreparedStatement createPreparedStatementGetTurns(Connection con, int gameid, int current)
@@ -56,6 +60,8 @@ public class TurnsDAO {
 			// check for successful store
 			if (result > 0) {
 
+				log.info(turn.getGamedid());
+				log.info(turn.getTurn() - 1);
 				return getTurns(connection, turn.getGamedid(), turn.getTurn() - 1);
 			}
 		} catch (Exception e) {
@@ -66,14 +72,16 @@ public class TurnsDAO {
 
 	private PreparedStatement createPreparedStatementInsertTurn(Connection con, Turn turn) throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO games(gameid, host, turn, action, value1, value2, value3, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, NOW())");
+				"INSERT INTO turns(gameid, host, turn, action, value1, value2, value3, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, NOW())");
 		ps.setInt(1, turn.getGamedid());
 		ps.setString(2, turn.getHost());
 		ps.setInt(3, turn.getTurn());
 		ps.setString(4, turn.getAction());
 		ps.setString(5, turn.getValue1());
-		ps.setString(6, turn.getValue2());
-		ps.setString(7, turn.getValue3());
+		String value2 = (turn.getValue2() == null) ? "" : turn.getValue2();
+		ps.setString(6, value2);
+		String value3 = (turn.getValue3() == null) ? "" : turn.getValue3();
+		ps.setString(7, value3);
 		return ps;
 	}
 }

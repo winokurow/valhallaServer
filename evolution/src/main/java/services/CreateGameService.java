@@ -52,7 +52,6 @@ public class CreateGameService {
 					CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
 					Response response = Response.ok().entity(gameResponse).build();
 					return response;
-
 				}
 			}
 		}
@@ -167,7 +166,6 @@ public class CreateGameService {
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
 			Game game = project.getGameByUser(connection, id);
-			log.info(game.getId());
 			CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
 			Response response = Response.ok().entity(gameResponse).build();
 			return response;
