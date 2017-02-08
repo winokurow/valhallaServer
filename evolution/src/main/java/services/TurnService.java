@@ -47,7 +47,7 @@ public class TurnService {
 
 			List<Turn> turns = project.storeTurn(connection, turn);
 			log.info(turns.size());
-			if (turns.size() == 1) {
+			if (turns.size() > 1) {
 				CustomResponse<Turn> TurnResponse = new CustomResponse<>(false, "", turns.get(0));
 				Response response = Response.ok().entity(TurnResponse).build();
 				return response;
@@ -68,7 +68,7 @@ public class TurnService {
 	@Path("game/{uiid}/current/{current}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getTurn(@PathParam("gameid") Integer gameid, @PathParam("current") Integer current)
+	public Response getTurn(@PathParam("uiid") Integer gameid, @PathParam("current") Integer current)
 			throws JSONException {
 		if (gameid == null || current == null) {
 			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters is missing!", null);
