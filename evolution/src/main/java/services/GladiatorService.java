@@ -41,15 +41,18 @@ public class GladiatorService {
 			@FormParam("dex") Integer dex, @FormParam("dex_progress") Integer dex_progress,
 			@FormParam("spd") Integer spd, @FormParam("spd_progress") Integer spd_progress,
 			@FormParam("con") Integer con, @FormParam("con_progress") Integer con_progress,
+			@FormParam("int") Integer intel, @FormParam("int_progress") Integer int_progress,
+			@FormParam("stamina") Integer stamina, @FormParam("stamina_progress") Integer stamina_progress,
 			@FormParam("mart_art") Integer mart_art, @FormParam("mart_art_progress") Integer mart_art_progress) {
 		if (id == null || name.isEmpty() || str == null || str_progress == null || dex == null || dex_progress == null
-				|| spd == null || spd_progress == null || con == null || con_progress == null || mart_art == null
+				|| spd == null || spd_progress == null || con == null || con_progress == null || intel == null
+				|| int_progress == null || stamina == null || stamina_progress == null || mart_art == null
 				|| mart_art_progress == null) {
 			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters are missing!", null);
 			return Response.ok().entity(gameResponse).build();
 		}
 		Gladiator gladiator = new Gladiator(id, -1, name, str, str_progress, dex, dex_progress, spd, spd_progress, con,
-				con_progress, mart_art, mart_art_progress, "", "");
+				con_progress, intel, int_progress, stamina, stamina_progress, mart_art, mart_art_progress, "", "");
 		try {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
@@ -132,8 +135,11 @@ public class GladiatorService {
 		int dex = ThreadLocalRandom.current().nextInt(1, 4);
 		int spd = ThreadLocalRandom.current().nextInt(1, 4);
 		int con = ThreadLocalRandom.current().nextInt(1, 4);
+		int intel = ThreadLocalRandom.current().nextInt(1, 4);
+		int stamina = ThreadLocalRandom.current().nextInt(1, 4);
 		String name = getName();
-		Gladiator gladiator = new Gladiator(-1, userid, name, str, 0, dex, 0, spd, 0, con, 0, 0, 0, "", "");
+		Gladiator gladiator = new Gladiator(-1, userid, name, str, 0, dex, 0, spd, 0, con, 0, intel, 0, stamina, 0, 0,
+				0, "", "");
 		Database database = new Database();
 		Connection connection;
 		try {
