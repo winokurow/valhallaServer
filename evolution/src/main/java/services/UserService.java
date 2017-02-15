@@ -92,6 +92,9 @@ public class UserService {
 	public Response changeUser(@FormParam("uiid") String id, @FormParam("points") String points,
 			@FormParam("level") String level) {
 		if (id.isEmpty() || points.isEmpty() || level.isEmpty()) {
+			log.info(id);
+			log.info(points);
+			log.info(level);
 			CustomResponse<User> userResponse = new CustomResponse<>(true, "Required parameters are missing!", null);
 			return Response.ok().entity(userResponse).build();
 		}

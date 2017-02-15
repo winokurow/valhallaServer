@@ -47,7 +47,7 @@ public class TurnService {
 
 			List<Turn> turns = project.storeTurn(connection, turn);
 			log.info(turns.size());
-			if (turns.size() > 1) {
+			if (turns.size() > 0) {
 				CustomResponse<Turn> TurnResponse = new CustomResponse<>(false, "", turns.get(0));
 				Response response = Response.ok().entity(TurnResponse).build();
 				return response;

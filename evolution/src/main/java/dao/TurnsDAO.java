@@ -23,8 +23,8 @@ public class TurnsDAO {
 		try (PreparedStatement ps1 = createPreparedStatementGetTurns(connection, gameid, current);
 				ResultSet rs = ps1.executeQuery();) {
 			List<Turn> turns = new ArrayList<>();
-			log.info("th1");
 			while (rs.next()) {
+				log.info(rs.getString("action"));
 				String value2 = (rs.getString("value2") == null) ? "" : rs.getString("value2");
 				String value3 = (rs.getString("value3") == null) ? "" : rs.getString("value3");
 				String updated_at = (rs.getString("updated_at") == null) ? "" : rs.getString("updated_at");
@@ -44,6 +44,7 @@ public class TurnsDAO {
 
 	private PreparedStatement createPreparedStatementGetTurns(Connection con, int gameid, int current)
 			throws SQLException {
+		log.info(current);
 		PreparedStatement ps = con.prepareStatement("SELECT * from turns WHERE gameid = ? AND turn > ?");
 		ps.setInt(1, gameid);
 		ps.setInt(2, current);
@@ -62,7 +63,7 @@ public class TurnsDAO {
 
 				log.info(turn.getGamedid());
 				log.info(turn.getTurn() - 1);
-				return getTurns(connection, turn.getGamedid(), turn.getTurn() - 1);
+				return getTurns(connection, turn.getGamedid(), turn.getTurn() - 2);
 			}
 		} catch (Exception e) {
 			throw e;

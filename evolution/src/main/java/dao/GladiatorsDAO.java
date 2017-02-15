@@ -145,7 +145,7 @@ public class GladiatorsDAO {
 	private PreparedStatement createPreparedStatementUpdateGladiator(Connection con, Gladiator gladiator)
 			throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
-				"UPDATE games SET name=?, str=?, str_progress=?, dex=?, dex_progress=?, spd=?, spd_progress=?, con=?, con_progress=?, mart_art=?, mart_art_progress=?, updated_at=NOW() WHERE id = ?");
+				"UPDATE gladiators SET name=?, str=?, str_progress=?, dex=?, dex_progress=?, spd=?, spd_progress=?, con=?, con_progress=?, mart_art=?, mart_art_progress=?, updated_at=NOW() WHERE id = ?");
 		ps.setString(1, gladiator.getName());
 		ps.setInt(2, gladiator.getStr());
 		ps.setInt(3, gladiator.getStr_progress());
