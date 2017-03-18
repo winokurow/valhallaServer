@@ -32,8 +32,11 @@ public class UserDAO {
 			int result = ps.executeUpdate();
 			// check for successful store
 			if (result > 0) {
-				User user = getUserByUUID(connection, uuid);
-				return user;
+				ResultSet rs = ps.getGeneratedKeys();
+				if (rs.next()) {
+					User user = getUserByUUID(connection, Integer.toString(rs.getInt(1)));
+					return user;
+				}
 			}
 		} catch (Exception e) {
 			throw e;

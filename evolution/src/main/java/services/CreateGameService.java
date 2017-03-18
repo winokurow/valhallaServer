@@ -52,6 +52,9 @@ public class CreateGameService {
 					CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
 					Response response = Response.ok().entity(gameResponse).build();
 					return response;
+				} else {
+					CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Something goes wrong", null);
+					return Response.ok().entity(gameResponse).build();
 				}
 			}
 		}
@@ -67,7 +70,7 @@ public class CreateGameService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response changeGame(@FormParam("uiid") String id, @FormParam("status") String status,
 			@FormParam("userid") String userid) {
-		if (id.isEmpty() || status.isEmpty() || userid == null) {
+		if (id.isEmpty() || status.isEmpty()) {
 			CustomResponse<Game> gameResponse = new CustomResponse<>(true, "Required parameters are missing!", null);
 			return Response.ok().entity(gameResponse).build();
 		}
@@ -77,7 +80,9 @@ public class CreateGameService {
 			GameDAO project = new GameDAO();
 			boolean result = project.setGameStatus(connection, id, status);
 			if (result) {
-				result = project.setGameUser2(connection, id, userid);
+				if (userid != null) {
+					result = project.setGameUser2(connection, id, userid);
+				}
 			}
 			if (!result) {
 				CustomResponse<Game> gameResponse = new CustomResponse<>(true,

@@ -103,7 +103,7 @@ public class GladiatorsDAO {
 	private PreparedStatement createPreparedStatementInsertGladiator(Connection con, Gladiator gladiator)
 			throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO gladiators(userid, name, str, str_progress, dex, dex_progress, spd, spd_progress, con, con_progress, int, int_progress, stamina, stamina_progress, mart_art, mart_art_progress, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+				"INSERT INTO gladiators(userid, name, str, str_progress, dex, dex_progress, spd, spd_progress, con, con_progress, int, int_progress, stamina, stamina_progress, mart_art, mart_art_progress, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
 				Statement.RETURN_GENERATED_KEYS);
 		ps.setInt(1, gladiator.getUserid());
 		ps.setString(2, gladiator.getName());
@@ -115,12 +115,12 @@ public class GladiatorsDAO {
 		ps.setInt(8, gladiator.getSpd_progress());
 		ps.setInt(9, gladiator.getCon());
 		ps.setInt(10, gladiator.getCon_progress());
-		ps.setInt(10, gladiator.getIntel());
-		ps.setInt(11, gladiator.getIntel_progress());
-		ps.setInt(12, gladiator.getStamina());
-		ps.setInt(13, gladiator.getStamina_progress());
-		ps.setInt(14, gladiator.getMart_art());
-		ps.setInt(15, gladiator.getMart_art_progress());
+		ps.setInt(11, gladiator.getIntel());
+		ps.setInt(12, gladiator.getIntel_progress());
+		ps.setInt(13, gladiator.getStamina());
+		ps.setInt(14, gladiator.getStamina_progress());
+		ps.setInt(15, gladiator.getMart_art());
+		ps.setInt(16, gladiator.getMart_art_progress());
 		return ps;
 	}
 

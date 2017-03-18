@@ -229,7 +229,7 @@ public class GameDAO {
 					gamer2name = user2.getName();
 					gamer2points = user2.getPoints();
 				}
-
+				log.info(rs.getString("id"));
 				game = new Game(rs.getString("id"), user1.getId(), user1.getName(), user1.getPoints(), gamer2id,
 						gamer2name, gamer2points, rs.getString("status"), rs.getString("field"),
 						rs.getString("created_at"), rs.getString("updated_at"));
@@ -247,7 +247,8 @@ public class GameDAO {
 		ps.setString(1, user);
 		ps.setString(2, user);
 		ps.setString(3, "ENDED");
-
+		log.info("SELECT * from games WHERE (gamer1id = " + user + " OR gamer2id = " + user
+				+ ") AND NOT status='ENDED'");
 		return ps;
 	}
 }
