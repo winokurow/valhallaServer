@@ -147,7 +147,8 @@ public class GladiatorService {
 			GladiatorsDAO project = new GladiatorsDAO();
 			gladiator = project.storeGladiator(connection, gladiator);
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			e.getMessage();
+			e.printStackTrace();
 		}
 		return gladiator;
 	}

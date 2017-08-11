@@ -78,6 +78,15 @@ public class CreateGameService {
 			Database database = new Database();
 			Connection connection = database.Get_Connection();
 			GameDAO project = new GameDAO();
+			if (status.equals("PREPARED_WAITING")) {
+
+				String oldStatus = project.getGame(connection, id).getStatus();
+				log.info("OOOOLD STATUS" + oldStatus);
+				if (oldStatus.equals("PREPARED_WAITING")) {
+					status = "STARTED";
+				}
+			}
+
 			boolean result = project.setGameStatus(connection, id, status);
 			if (result) {
 				if (userid != null) {
@@ -89,7 +98,9 @@ public class CreateGameService {
 						"Unknown error occurred in game creation!", null);
 				return Response.ok().entity(gameResponse).build();
 			} else {
-				CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", null);
+				Game game = new Game();
+				game.setStatus(status);
+				CustomResponse<Game> gameResponse = new CustomResponse<>(false, "", game);
 				Response response = Response.ok().entity(gameResponse).build();
 				return response;
 			}

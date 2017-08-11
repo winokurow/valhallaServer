@@ -29,7 +29,7 @@ public class GladiatorsDAO {
 				Gladiator gladiator = new Gladiator(rs.getInt("id"), rs.getInt("userid"), rs.getString("name"),
 						rs.getInt("str"), rs.getInt("str_progress"), rs.getInt("dex"), rs.getInt("dex_progress"),
 						rs.getInt("spd"), rs.getInt("spd_progress"), rs.getInt("con"), rs.getInt("con_progress"),
-						rs.getInt("int"), rs.getInt("int_progress"), rs.getInt("stamina"),
+						rs.getInt("intel"), rs.getInt("int_progress"), rs.getInt("stamina"),
 						rs.getInt("stamina_progress"), rs.getInt("mart_art"), rs.getInt("mart_art"),
 						rs.getString("created_at"), rs.getString("updated_at"));
 
@@ -58,7 +58,7 @@ public class GladiatorsDAO {
 				Gladiator gladiator = new Gladiator(rs.getInt("id"), rs.getInt("userid"), rs.getString("name"),
 						rs.getInt("str"), rs.getInt("str_progress"), rs.getInt("dex"), rs.getInt("dex_progress"),
 						rs.getInt("spd"), rs.getInt("spd_progress"), rs.getInt("con"), rs.getInt("con_progress"),
-						rs.getInt("int"), rs.getInt("int_progress"), rs.getInt("stamina"),
+						rs.getInt("intel"), rs.getInt("int_progress"), rs.getInt("stamina"),
 						rs.getInt("stamina_progress"), rs.getInt("mart_art"), rs.getInt("mart_art"),
 						rs.getString("created_at"), rs.getString("updated_at"));
 				return gladiator;
@@ -103,7 +103,7 @@ public class GladiatorsDAO {
 	private PreparedStatement createPreparedStatementInsertGladiator(Connection con, Gladiator gladiator)
 			throws SQLException {
 		PreparedStatement ps = con.prepareStatement(
-				"INSERT INTO gladiators(userid, name, str, str_progress, dex, dex_progress, spd, spd_progress, con, con_progress, int, int_progress, stamina, stamina_progress, mart_art, mart_art_progress, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+				"INSERT INTO gladiators(userid, name, str, str_progress, dex, dex_progress, spd, spd_progress, con, con_progress, intel, int_progress, stamina, stamina_progress, mart_art, mart_art_progress, created_at) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
 				Statement.RETURN_GENERATED_KEYS);
 		ps.setInt(1, gladiator.getUserid());
 		ps.setString(2, gladiator.getName());
